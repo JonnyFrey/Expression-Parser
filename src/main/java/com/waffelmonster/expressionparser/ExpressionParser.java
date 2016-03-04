@@ -32,8 +32,8 @@ public class ExpressionParser {
         Node root = null;
         try {
             parsed = expression.parse(argument.split(" "));
+            result = "" + expression.evaluate(parsed);
             root = BinaryTreeUtils.convertPostfixToTree(parsed);
-            result = "" + expression.simplify(root).getData();
         } catch (RuntimeException e) {
             e.printStackTrace();
         } finally {
