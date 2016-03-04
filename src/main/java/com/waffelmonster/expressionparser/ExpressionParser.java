@@ -3,7 +3,11 @@ package com.waffelmonster.expressionparser;
 import com.waffelmonster.expressionparser.binarytree.BinaryTreeUtils;
 import com.waffelmonster.expressionparser.binarytree.Node;
 import com.waffelmonster.expressionparser.conversion.Expression;
+import com.waffelmonster.expressionparser.conversion.Operations;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -13,31 +17,29 @@ public class ExpressionParser {
 
 
     public static void main(String[] args) {
-        String argument = "";
+        String[] argument = args;
         if (args.length == 0) {
             argument = applyScanner();
-        } else {
-            argument = concat(args);
         }
 
-        runWithArguments(argument);
+        runWithArguments(normalize(argument));
         System.out.println("===========Random=========");
         runWithRandom();
     }
 
-    private static void runWithArguments(String argument) {
+    private static void runWithArguments(String[] argument) {
         Expression expression = new Expression();
         String[] parsed = new String[]{"Unable", "to", "parse"};
         String result = "Unable to parse";
         Node root = null;
         try {
-            parsed = expression.parse(argument.split(" "));
+            parsed = expression.parse(argument);
             result = "" + expression.evaluate(parsed);
             root = BinaryTreeUtils.convertPostfixToTree(parsed);
         } catch (RuntimeException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("Original = " + argument);
+            System.out.println("Original = " + concat(argument));
             System.out.println("Postfix  = " + concat(parsed));
             System.out.println("Result   = " + result);
             if (root != null) {
@@ -99,10 +101,10 @@ public class ExpressionParser {
         return sb.toString();
     }
 
-    private static String applyScanner() {
+    private static String[] applyScanner() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Input expression");
-        return scanner.nextLine();
+        return scanner.nextLine().split(" ");
     }
 
 
@@ -116,5 +118,64 @@ public class ExpressionParser {
         }
         return result.trim();
     }
+
+    //Example 32(25 - 5) => "32", "*", "(", "25", "-", "5", ")"
+    // Type out 32(25 - 5) => "32(25", "-", "5)"
+    //If number not next to an operator, insert a *
+    private static String[] normalize(String[] args) {
+        if (args.length == 0) {
+            return new String[0];
+        }
+        List<String> normalized = new ArrayList();
+        //Correctly break up tokens
+        for (String token : args) {
+            if (token == null || token.isEmpty()) {
+                continue;
+            }
+            if (Expression.isNumeric(token) || Operations.isAnOperator(token)) {
+                normalized.add(token);
+            } else {
+                normalized.addAll(breakUpToken(token));
+            }
+        }
+        //Inserts multipy in correct spots
+        normalized = insertMultiply(normalized);
+        String[] result = new String[normalized.size()];
+        return normalized.toArray(result);
+    }
+
+    //Break it up into characters and keep apending the first character until parsed
+    private static List<String> breakUpToken(String token) {
+        char[] pieces = token.toCharArray();
+        boolean firstCharNumeric = Character.isDigit(pieces[0]);
+        String transformToken = "" + pieces[0];
+        //Loop through the whole token
+        for (int i = 1; i < pieces.length; i++) {
+            if (firstCharNumeric == Character.isDigit(pieces[i])) {
+                transformToken += "" + pieces[i];
+            } else {
+                firstCharNumeric = !firstCharNumeric;
+                transformToken += " " + pieces[i];
+            }
+        }
+        return Arrays.asList(transformToken.split(" "));
+    }
+
+    private static List<String> insertMultiply(List<String> separatedToken) {
+        List<String> result = new ArrayList<>();
+        result.add(separatedToken.get(0));
+        for (int i = 1; i < separatedToken.size(); i++) {
+            String prevToken = separatedToken.get(i - 1);
+            String token = separatedToken.get(i);
+            if (Expression.isNumeric(prevToken)) {
+                if ("(".equals(token) || !Operations.isAnOperator(token) && !Expression.isNumeric(token)) {
+                    result.add("*");
+                }
+            }
+            result.add(token);
+        }
+        return result;
+    }
+
 
 }

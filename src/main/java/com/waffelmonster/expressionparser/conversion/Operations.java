@@ -45,7 +45,7 @@ public class Operations {
         return getOperator(sign) != null || isParenthesis(sign);
     }
 
-    private static boolean isParenthesis(String sign) {
+    public static boolean isParenthesis(String sign) {
         return "(".equals(sign) || ")".equals(sign);
     }
 
