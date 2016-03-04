@@ -11,12 +11,17 @@ import java.util.Stack;
  * Created by jonnyfrey on 3/1/16.
  */
 public class Operations {
-    public static Map<String, Operator> listOfOperators = new HashMap<>();
+    private static Map<String, Operator> listOfOperators = new HashMap<>();
     private Stack<String> stack;
 
     public Operations() {
         setUpList();
         stack = new Stack<>();
+    }
+
+    public static Map<String, Operator> getListOfOperators() {
+        setUpList();
+        return listOfOperators;
     }
 
     private static void setUpList() {

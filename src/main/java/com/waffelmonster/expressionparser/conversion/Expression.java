@@ -1,6 +1,9 @@
 package com.waffelmonster.expressionparser.conversion;
 
+import com.waffelmonster.expressionparser.binarytree.Node;
+
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Stack;
 
 /**
@@ -63,6 +66,18 @@ public class Expression {
             throw new IllegalArgumentException("Expression contains extra values");
         }
         return result;
+    }
+
+    public static Node simplify(Node root) {
+        if (root == null) {
+            throw new IllegalStateException("Root can't be null");
+        }
+        if (Operations.isAnOperator(root.getData())) {
+            double leftValue = Double.valueOf(simplify(root.getLeft()).getData());
+            double rightValue = Double.valueOf(simplify(root.getRight()).getData());
+            return new Node("" + Operations.applyOperator(root.getData(), leftValue, rightValue));
+        }
+        return root;
     }
 
     private void checkSize(String[] args) {
