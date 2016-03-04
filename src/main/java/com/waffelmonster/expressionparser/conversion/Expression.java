@@ -1,21 +1,22 @@
 package com.waffelmonster.expressionparser.conversion;
 
-import com.waffelmonster.expressionparser.binarytree.Node;
+import com.waffelmonster.expressionparser.conversion.operators.Operator;
 
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Stack;
+
+import static com.waffelmonster.expressionparser.conversion.Operations.*;
 
 /**
  * Created by jonnyfrey on 3/1/16.
  */
 public class Expression {
     private LinkedList<String> output;
-    private Operations operations;
+    private Stack<String> shuntYard;
 
     public Expression() {
         output = new LinkedList<>();
-        operations = new Operations();
+        shuntYard = new Stack<>();
     }
 
     public String[] parse(String[] args) {
@@ -25,14 +26,14 @@ public class Expression {
                 output.add(token);
                 continue;
             }
-            if (Operations.isAnOperator(token)) {
-                output.addAll(operations.pushOperatorToStack(token));
+            if (isAnOperator(token)) {
+                output.addAll(pushOperatorToStack(token));
                 continue;
             }
         }
 
-        //Flush stack remove strangling operators
-        output.addAll(operations.flushStack());
+        //Flush shuntYard remove strangling operators
+        output.addAll(flushStack());
 
         //Turn the nice list into an array
         String[] array = new String[output.size()];
@@ -50,7 +51,7 @@ public class Expression {
                 stack.push(new Double(token));
                 continue;
             }
-            if (Operations.isAnOperator(token)) {
+            if (isAnOperator(token)) {
                 if (stack.size() < 2) {
                     throw new IllegalArgumentException("Not enough values for the operation " + token + " pos: " + pos);
                 }
@@ -68,26 +69,63 @@ public class Expression {
         return result;
     }
 
-    public static Node simplify(Node root) {
-        if (root == null) {
-            throw new IllegalStateException("Root can't be null");
-        }
-        if (Operations.isAnOperator(root.getData())) {
-            double leftValue = Double.valueOf(simplify(root.getLeft()).getData());
-            double rightValue = Double.valueOf(simplify(root.getRight()).getData());
-            return new Node("" + Operations.applyOperator(root.getData(), leftValue, rightValue));
-        }
-        return root;
-    }
-
     private void checkSize(String[] args) {
         if (args.length == 0) {
             throw new IllegalArgumentException("No expression was defined");
         }
     }
 
-    public static boolean isNumeric(String s) {
-        return s.matches("[-+]?\\d*\\.?\\d+");
+    private LinkedList<String> pushOperatorToStack(String sign) {
+        LinkedList<String> replacement = new LinkedList<>();
+        //Rules applied here
+        //If Stack is empty or the '(' should just push and return
+        if (!shuntYard.empty() && !"(".equals(sign)) {
+
+            //If ')' go through the entire shuntYard until the '(' pops up or the shuntYard is empty which means mismatch
+            if (")".equals(sign)) {
+                while (!"(".equals(shuntYard.peek())) {
+                    replacement.add(shuntYard.pop());
+                    if (shuntYard.empty()) {
+                        throw new IllegalArgumentException("Found a mismatch amount of parenthesis");
+                    }
+                }
+                //Remove ')'
+                shuntYard.pop();
+                return replacement;
+            }
+
+            //Can't have an operator with a smaller priority on top of something with a bigger priority so
+            //pop off the ops in the shuntYard till you can push the sign
+            while (!shuntYard.empty() && smallerPrecedence(sign, shuntYard.peek())) {
+                replacement.add(shuntYard.pop());
+            }
+        }
+        shuntYard.push(sign);
+        return replacement;
+    }
+
+    private LinkedList<String> flushStack() {
+        LinkedList<String> result = new LinkedList<>();
+
+        while (!shuntYard.empty()) {
+            String operator = shuntYard.pop();
+            if (isParenthesis(operator)) {
+                throw new IllegalArgumentException("Found a mismatch amount of parenthesis");
+            }
+            result.add(operator);
+        }
+        return result;
+    }
+
+    private boolean smallerPrecedence(String op1, String op2) {
+        Operator first = getOperator(op1);
+        Operator second = getOperator(op2);
+        int value = first.compareTo(second);
+        if (first.isApplyRight()) {
+            return value < 0;
+        } else {
+            return value <= 0;
+        }
     }
 
 }

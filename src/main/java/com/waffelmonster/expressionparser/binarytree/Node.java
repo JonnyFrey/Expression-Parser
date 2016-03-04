@@ -1,7 +1,5 @@
 package com.waffelmonster.expressionparser.binarytree;
 
-import java.util.Comparator;
-
 /**
  * Created by jonnyfrey on 3/2/16.
  */
@@ -19,7 +17,7 @@ public class Node {
     }
 
     public Node(double data) {
-        this.data = "" + (int)data;
+        this.data = "" + (int) data;
     }
 
     public Node withData(String data) {

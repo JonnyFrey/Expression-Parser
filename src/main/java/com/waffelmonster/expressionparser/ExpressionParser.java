@@ -60,7 +60,7 @@ public class ExpressionParser {
         Node reparsedRandom = null;
         try {
             parsed = expression.parse(infix);
-            result = expression.simplify(random).getData();
+            result = Operations.simplify(random).getData();
             reparsedRandom = BinaryTreeUtils.convertPostfixToTree(parsed);
         } catch (ArithmeticException e) {
             System.out.println("Random generator produced an illegal statement");
@@ -132,7 +132,7 @@ public class ExpressionParser {
             if (token == null || token.isEmpty()) {
                 continue;
             }
-            if (Expression.isNumeric(token) || Operations.isAnOperator(token)) {
+            if (Operations.isNumeric(token) || Operations.isAnOperator(token)) {
                 normalized.add(token);
             } else {
                 normalized.addAll(breakUpToken(token));
@@ -167,8 +167,8 @@ public class ExpressionParser {
         for (int i = 1; i < separatedToken.size(); i++) {
             String prevToken = separatedToken.get(i - 1);
             String token = separatedToken.get(i);
-            if (Expression.isNumeric(prevToken)) {
-                if ("(".equals(token) || !Operations.isAnOperator(token) && !Expression.isNumeric(token)) {
+            if (Operations.isNumeric(prevToken)) {
+                if ("(".equals(token) || !Operations.isAnOperator(token) && !Operations.isNumeric(token)) {
                     result.add("*");
                 }
             }

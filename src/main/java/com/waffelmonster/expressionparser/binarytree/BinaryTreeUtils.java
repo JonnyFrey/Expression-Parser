@@ -1,9 +1,11 @@
 package com.waffelmonster.expressionparser.binarytree;
 
-import com.waffelmonster.expressionparser.conversion.Expression;
 import com.waffelmonster.expressionparser.conversion.Operations;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by jonnyfrey on 3/2/16.
@@ -14,7 +16,7 @@ public class BinaryTreeUtils {
         Stack<Node> stack = new Stack<>();
         for (int pos = 0; pos < args.length; pos++) {
             String token = args[pos];
-            if (Expression.isNumeric(token)) {
+            if (Operations.isNumeric(token)) {
                 stack.push(new Node(token));
                 continue;
             }
@@ -166,14 +168,14 @@ public class BinaryTreeUtils {
             this.high = high - low + 1;
         }
 
-        public long random() {
-            return (long) (Math.random() * high) + low;
+        private static String getRandomOperator() {
+            String[] keys = Operations.getListOfOperators();
+            RandomGenerator randomGenerator = new RandomGenerator(0, keys.length - 1);
+            return keys[(int) randomGenerator.random()];
         }
 
-        private static String getRandomOperator() {
-            List<String> keys = new ArrayList<String>(Operations.getListOfOperators().keySet());
-            RandomGenerator randomGenerator = new RandomGenerator(0, keys.size() - 1);
-            return keys.get((int)randomGenerator.random());
+        public long random() {
+            return (long) (Math.random() * high) + low;
         }
     }
 

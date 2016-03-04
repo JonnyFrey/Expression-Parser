@@ -3,7 +3,7 @@ package com.waffelmonster.expressionparser.conversion.operators;
 /**
  * Created by jonnyfrey on 3/1/16.
  */
-public abstract class Operator implements Comparable<Operator>{
+public abstract class Operator implements Comparable<Operator> {
     private String sign;
     private int priority;
     private boolean applyRight;
