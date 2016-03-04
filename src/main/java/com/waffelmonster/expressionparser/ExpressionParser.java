@@ -39,14 +39,8 @@ public class ExpressionParser {
         } catch (RuntimeException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("Original = " + concat(argument));
-            System.out.println("Postfix  = " + concat(parsed));
-            System.out.println("Result   = " + result);
-            if (root != null) {
-                System.out.println("Tree: ");
-                BinaryTreeUtils.printNode(root);
-                System.out.println("Original " + concat(BinaryTreeUtils.convertTreeToInfix(root)));
-            }
+            System.out.println(generatePrint(concat(argument), concat(parsed), result));
+            BinaryTreeUtils.printNode(root);
         }
     }
 
@@ -67,10 +61,7 @@ public class ExpressionParser {
         } catch (RuntimeException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("Random Expression = " + concat(infix));
-            System.out.println("Postfix           = " + concat(parsed));
-            System.out.println("Result            = " + result);
-            System.out.println("Tree: ");
+            System.out.println(generatePrint(concat(infix), concat(parsed), result));
             BinaryTreeUtils.printNode(random);
             if (reparsedRandom != null) {
                 System.out.println("Tree Reconversion: ");
@@ -83,17 +74,6 @@ public class ExpressionParser {
         StringBuffer sb = new StringBuffer();
 
         sb.append("Original = " + original).append("\n");
-        sb.append("Postfix  = " + postfix).append("\n");
-        sb.append("Result   = " + result).append("\n");
-        sb.append("Tree: ");
-
-        return sb.toString();
-    }
-
-    private static String generatePrint(Node original, String postfix, String result) {
-        StringBuffer sb = new StringBuffer();
-
-        sb.append("Original = " + BinaryTreeUtils.convertTreeToInfix(original)).append("\n");
         sb.append("Postfix  = " + postfix).append("\n");
         sb.append("Result   = " + result).append("\n");
         sb.append("Tree: ");
