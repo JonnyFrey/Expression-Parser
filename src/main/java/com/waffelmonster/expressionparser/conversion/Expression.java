@@ -79,11 +79,11 @@ public class Expression {
         LinkedList<String> replacement = new LinkedList<>();
         //Rules applied here
         //If Stack is empty or the '(' should just push and return
-        if (!shuntYard.empty() && !"(".equals(sign)) {
+        if (!shuntYard.empty() && !leftParenthesis.equals(sign)) {
 
             //If ')' go through the entire shuntYard until the '(' pops up or the shuntYard is empty which means mismatch
-            if (")".equals(sign)) {
-                while (!"(".equals(shuntYard.peek())) {
+            if (rightParenthesis.equals(sign)) {
+                while (!leftParenthesis.equals(shuntYard.peek())) {
                     replacement.add(shuntYard.pop());
                     if (shuntYard.empty()) {
                         throw new IllegalArgumentException("Found a mismatch amount of parenthesis");

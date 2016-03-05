@@ -11,6 +11,9 @@ import java.util.Map;
  */
 public class Operations {
     private static final Map<String, Operator> listOfOperators;
+    private static final String isDigitRegex = "[-+]?\\d*\\.?\\d+";
+    public static final String leftParenthesis = "(";
+    public static final String rightParenthesis = ")";
 
     static {
         listOfOperators = new HashMap<>();
@@ -38,7 +41,7 @@ public class Operations {
     }
 
     public static boolean isParenthesis(String sign) {
-        return "(".equals(sign) || ")".equals(sign);
+        return leftParenthesis.equals(sign) || rightParenthesis.equals(sign);
     }
 
     public static double applyOperator(String sign, double val1, double val2) {
@@ -50,7 +53,7 @@ public class Operations {
     }
 
     public static boolean isNumeric(String s) {
-        return s.matches("[-+]?\\d*\\.?\\d+");
+        return s.matches(isDigitRegex);
     }
 
     public static Node simplify(Node root) {

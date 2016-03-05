@@ -4,6 +4,8 @@ import com.waffelmonster.expressionparser.binarytree.BinaryTreeUtils;
 import com.waffelmonster.expressionparser.binarytree.Node;
 import com.waffelmonster.expressionparser.conversion.Expression;
 import com.waffelmonster.expressionparser.conversion.Operations;
+import com.waffelmonster.expressionparser.conversion.operators.Minus;
+import com.waffelmonster.expressionparser.conversion.operators.Multiply;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,9 +101,11 @@ public class ExpressionParser {
         return result.trim();
     }
 
-    //Example 32(25 - 5) => "32", "*", "(", "25", "-", "5", ")"
-    // Type out 32(25 - 5) => "32(25", "-", "5)"
-    //If number not next to an operator, insert a *
+    /* Example 32(25 - 5) => "32", "*", "(", "25", "-", "5", ")"
+     * Example -8 - ( 3(5-2)) => "-8", "-", "(", "3", "(", "5", "-", "2", ")", ")"
+     *
+     * If number not next to an operator, insert a *
+     */
     private static String[] normalize(String[] args) {
         if (args.length == 0) {
             return new String[0];
@@ -119,7 +123,7 @@ public class ExpressionParser {
             }
         }
         //Inserts multipy in correct spots
-        normalized = insertMultiply(normalized);
+        normalized = insertAssertions(normalized);
         String[] result = new String[normalized.size()];
         return normalized.toArray(result);
     }
@@ -131,7 +135,7 @@ public class ExpressionParser {
         String transformToken = "" + pieces[0];
         //Loop through the whole token
         for (int i = 1; i < pieces.length; i++) {
-            if (firstCharNumeric == Character.isDigit(pieces[i])) {
+            if (firstCharNumeric == Character.isDigit(pieces[i]) && !Operations.isParenthesis(String.valueOf(pieces[i]))) {
                 transformToken += "" + pieces[i];
             } else {
                 firstCharNumeric = !firstCharNumeric;
@@ -141,15 +145,29 @@ public class ExpressionParser {
         return Arrays.asList(transformToken.split(" "));
     }
 
-    private static List<String> insertMultiply(List<String> separatedToken) {
+    private static List<String> insertAssertions(List<String> separatedToken) {
         List<String> result = new ArrayList<>();
         result.add(separatedToken.get(0));
         for (int i = 1; i < separatedToken.size(); i++) {
             String prevToken = separatedToken.get(i - 1);
             String token = separatedToken.get(i);
             if (Operations.isNumeric(prevToken)) {
-                if ("(".equals(token) || !Operations.isAnOperator(token) && !Operations.isNumeric(token)) {
-                    result.add("*");
+                if (Operations.leftParenthesis.equals(token) || !Operations.isAnOperator(token) && !Operations.isNumeric(token)) {
+                    result.add(Multiply.SIGN);
+                }
+            }
+            if (Minus.SIGN.equals(prevToken) && Operations.isNumeric(token)) {
+                if (i - 2 >= 0) {
+                    String prevprevToken = separatedToken.get(i - 2);
+                    if (!Operations.isNumeric(prevprevToken)) {
+                        result.remove(i - 1);
+                        result.add(Minus.SIGN + token);
+                        continue;
+                    }
+                } else {
+                    result.remove(i - 1);
+                    result.add(Minus.SIGN + token);
+                    continue;
                 }
             }
             result.add(token);
