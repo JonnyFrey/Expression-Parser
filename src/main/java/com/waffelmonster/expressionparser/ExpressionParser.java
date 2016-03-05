@@ -4,8 +4,7 @@ import com.waffelmonster.expressionparser.binarytree.BinaryTreeUtils;
 import com.waffelmonster.expressionparser.binarytree.Node;
 import com.waffelmonster.expressionparser.conversion.Expression;
 import com.waffelmonster.expressionparser.conversion.Operations;
-import com.waffelmonster.expressionparser.conversion.operators.Minus;
-import com.waffelmonster.expressionparser.conversion.operators.Multiply;
+import com.waffelmonster.expressionparser.conversion.Operators;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,20 +152,20 @@ public class ExpressionParser {
             String token = separatedToken.get(i);
             if (Operations.isNumeric(prevToken)) {
                 if (Operations.leftParenthesis.equals(token) || !Operations.isAnOperator(token) && !Operations.isNumeric(token)) {
-                    result.add(Multiply.SIGN);
+                    result.add(Operators.MULTIPLY.getSign());
                 }
             }
-            if (Minus.SIGN.equals(prevToken) && Operations.isNumeric(token)) {
+            if (Operators.MINUS.getSign().equals(prevToken) && Operations.isNumeric(token)) {
                 if (i - 2 >= 0) {
                     String prevprevToken = separatedToken.get(i - 2);
                     if (!Operations.isNumeric(prevprevToken)) {
                         result.remove(i - 1);
-                        result.add(Minus.SIGN + token);
+                        result.add(Operators.MINUS.getSign() + token);
                         continue;
                     }
                 } else {
                     result.remove(i - 1);
-                    result.add(Minus.SIGN + token);
+                    result.add(Operators.MINUS.getSign() + token);
                     continue;
                 }
             }

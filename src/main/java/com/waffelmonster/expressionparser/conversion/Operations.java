@@ -1,7 +1,6 @@
 package com.waffelmonster.expressionparser.conversion;
 
 import com.waffelmonster.expressionparser.binarytree.Node;
-import com.waffelmonster.expressionparser.conversion.operators.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,18 +9,18 @@ import java.util.Map;
  * Created by jonnyfrey on 3/1/16.
  */
 public class Operations {
-    private static final Map<String, Operator> listOfOperators;
+    private static final Map<String, Operators> listOfOperators;
     private static final String isDigitRegex = "[-+]?\\d*\\.?\\d+";
     public static final String leftParenthesis = "(";
     public static final String rightParenthesis = ")";
 
     static {
         listOfOperators = new HashMap<>();
-        listOfOperators.put(Exponent.SIGN, new Exponent());
-        listOfOperators.put(Multiply.SIGN, new Multiply());
-        listOfOperators.put(Divide.SIGN, new Divide());
-        listOfOperators.put(Add.SIGN, new Add());
-        listOfOperators.put(Minus.SIGN, new Minus());
+        listOfOperators.put(Operators.EXPONENT.getSign(), Operators.EXPONENT);
+        listOfOperators.put(Operators.MULTIPLY.getSign(), Operators.MULTIPLY);
+        listOfOperators.put(Operators.DIVIDE.getSign(), Operators.DIVIDE);
+        listOfOperators.put(Operators.ADD.getSign(), Operators.ADD);
+        listOfOperators.put(Operators.MINUS.getSign(), Operators.MINUS);
     }
 
     private Operations() {
@@ -32,7 +31,7 @@ public class Operations {
         return listOfOperators.keySet().toArray(list);
     }
 
-    public static Operator getOperator(String sign) {
+    public static Operators getOperator(String sign) {
         return listOfOperators.get(sign);
     }
 
@@ -45,7 +44,7 @@ public class Operations {
     }
 
     public static double applyOperator(String sign, double val1, double val2) {
-        Operator operator = getOperator(sign);
+        Operators operator = getOperator(sign);
         if (operator == null) {
             throw new IllegalArgumentException("Unable to find: " + sign);
         }

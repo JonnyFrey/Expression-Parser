@@ -1,7 +1,5 @@
 package com.waffelmonster.expressionparser.conversion;
 
-import com.waffelmonster.expressionparser.conversion.operators.Operator;
-
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -118,10 +116,10 @@ public class Expression {
     }
 
     private boolean smallerPrecedence(String op1, String op2) {
-        Operator first = getOperator(op1);
-        Operator second = getOperator(op2);
-        int value = first.compareTo(second);
-        if (first.isApplyRight()) {
+        Operators first = getOperator(op1);
+        Operators second = getOperator(op2);
+        int value = first.compare(second);
+        if (Operators.EXPONENT.equals(first)) {
             return value < 0;
         } else {
             return value <= 0;
